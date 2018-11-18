@@ -1,38 +1,37 @@
 /*
-路由器对象模块
+路由器模块
  */
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import Msite from '../pages/Msite/Msite'
-import Search from '../pages/Search/Search'
-import Order from '../pages/Order/Order'
-import Profile from '../pages/Profile/Profile'
+import Msite from '../pages/Msite/Msite.vue'
+import Search from '../pages/Search/Search.vue'
+import Order from '../pages/Order/Order.vue'
+import Profile from '../pages/Profile/Profile.vue'
 
 Vue.use(VueRouter)
+
 export default new VueRouter({
-  mode:'history',
-  //所有所有路由
-  routes:[
+  routes: [
     {
-      path:'/msite',
-      component:'msite'
+      path: '/',
+      redirect: '/msite'
     },
     {
-      path:'/search',
-      component:'search'
+      path: '/msite',
+      component: Msite,
     },
     {
-      path:'/order',
-      component:'order'
+      path: '/search',
+      component: Search,
     },
     {
-      path:'/profile',
-      component:'profile'
+      path: '/order',
+      component: Order,
     },
     {
-      path:'/',
-      redirect:'msite'
+      path: '/profile',
+      component: Profile,
     }
   ]
 })
