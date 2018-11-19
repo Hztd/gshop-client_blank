@@ -1,14 +1,21 @@
 <template>
   <div id="app">
     <router-view/>
-    <FooterGuid v-show="$router.meta.showFoot"/>
+    <FooterGuide v-show="$route.meta.showFoot"/>
   </div>
 </template>
 
 <script>
   import FooterGuide from './components/FooterGuide/FooterGuide.vue'
 
+  //import {reqAddress} from './api/'
+
   export default {
+
+    async mounted (){
+      const result = await reqAddress('116.36867','40.10038')
+      console.log(result)
+    },
     components: {
       FooterGuide
     }

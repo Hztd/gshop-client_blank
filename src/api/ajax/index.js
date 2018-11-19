@@ -1,0 +1,12 @@
+/*
+包含N个请求函数模块
+ */
+import ajax from './ajax'
+//const BASE = '/api'
+
+//[1、根据经纬度获取位置详情](#1根据经纬度获取位置详情)<br/>
+export const reqAddress = (longitude,latitude) => ajax(`/position/${latitude},${longitude}`)
+//[2、获取食品分类列表](#2获取食品分类列表)<br/>
+export const reqFoodCategorys = () => ajax('/index_category')
+//[3、根据经纬度获取商铺列表](#3根据经纬度获取商铺列表)<br/>
+export const reqShops = (longitude,latitude) => ajax('/shops',{latitude,longitude})
