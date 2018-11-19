@@ -3,6 +3,8 @@
  */
 import Vue from 'vue'
 import app from './app'
+
+import store from './store'
 import router from './router'
 import ToHeader from './components/TopHeader/TopHeader'
 
@@ -13,4 +15,5 @@ new Vue({
   el: '#app',
   render: h => h(app),
   router,
+  store
 })
