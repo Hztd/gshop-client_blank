@@ -42,7 +42,7 @@
               </section>
               <section class="login_message">
                 <input type="text" maxlength="11" placeholder="验证码">
-                <img class="get_verification" src="./images/captcha.svg" alt="captcha">
+                <img ref="captcha" class="get_verification" src="http://localhost:5000/captcha" alt="captcha" @click="updateCaptcha">
               </section>
             </section>
           </div>
@@ -58,6 +58,8 @@
 </template>
 
 <script>
+  import {reqSendCode} from '../../api/ajax/index'
+  import {Toast,MessageBox} from 'mint-ui'
   export default {
     data () {
       return {
@@ -75,7 +77,8 @@
     },
 
     methods: {
-      sendCode () {
+      //发送验证码
+      async sendCode () {
         // 开始倒计时
         this.computeTime = 30
         const interalId = setInterval(() => {
@@ -87,6 +90,21 @@
             clearInterval(interalId)
           }
         }, 1000)
+
+        //发ajax请求，发送短信验证码
+        const result = await reqSendCode(this.phone)
+        if (result.code===0) {
+          Toast('短信已发送')
+        }else {
+          //停止计时
+          this.computeTime = 0
+          MessageBox.alert(result.msg,'提示');
+        }
+      },
+      //更新图片验证码
+      updateCaptcha () {
+        //给image指定不同的src,浏览器会自动请求获取图片数据
+        this.$refs.captcha.src = 'http://localhost:5000/captcha?time='+Date.now()
       }
     }
   }
