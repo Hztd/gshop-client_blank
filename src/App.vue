@@ -12,6 +12,7 @@
 
     mounted (){
       this.$store.dispatch('getAddress')
+      this.$store.dispatch('getUserInfo')
     },
     components: {
       FooterGuide

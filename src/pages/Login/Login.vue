@@ -21,7 +21,7 @@
               </button>
             </section>
             <section class="login_verification">
-              <input type="tel" maxlength="8" placeholder="验证码">
+              <input type="tel" maxlength="8" placeholder="验证码" v-model="code">
             </section>
             <section class="login_hint">
               温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
@@ -31,22 +31,22 @@
           <div :class="{on: !loginWay}">
             <section>
               <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名">
+                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" v-model="name">
               </section>
               <section class="login_verification">
-                <input :type="isShowPwd ? 'text' : 'password'" maxlength="8" placeholder="密码">
+                <input :type="isShowPwd ? 'text' : 'password'" maxlength="8" placeholder="密码" v-model="pwd">
                 <div class="switch_button" @click="isShowPwd=!isShowPwd" :class="isShowPwd ? 'on' : 'off'">
                   <div class="switch_circle" :class="{right: isShowPwd}"></div>
                   <span class="switch_text">{{isShowPwd ? 'abc' : ''}}</span>
                 </div>
               </section>
               <section class="login_message">
-                <input type="text" maxlength="11" placeholder="验证码">
+                <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
                 <img ref="captcha" class="get_verification" src="http://localhost:5000/captcha" alt="captcha" @click="updateCaptcha">
               </section>
             </section>
           </div>
-          <button class="login_submit">登录</button>
+          <button class="login_submit" @click="login">登录</button>
         </form>
         <a href="javascript:;" class="about_us">关于我们</a>
       </div>
@@ -58,13 +58,17 @@
 </template>
 
 <script>
-  import {reqSendCode} from '../../api/ajax/index'
+  import {reqSendCode,reqPwdLogin,reqSmsLogin} from '../../api/ajax/index'
   import {Toast,MessageBox} from 'mint-ui'
   export default {
     data () {
       return {
         loginWay: false, // true: 短信登陆, false: 密码登陆
         phone: '', // 手机号
+        code: '', //  短信验证码
+        name: '', //  用户名
+        pwd: '', // 密码
+        captcha: '', // 图像验证码
         computeTime: 0, // 计时剩余时间
         isShowPwd: false, // 是否显示密码
       }
@@ -105,6 +109,48 @@
       updateCaptcha () {
         //给image指定不同的src,浏览器会自动请求获取图片数据
         this.$refs.captcha.src = 'http://localhost:5000/captcha?time='+Date.now()
+      },
+      //登录
+      async login (){
+        //前台表单验证
+        const {phone,code,name,pwd,captcha,loginway} =this
+        let result
+        if (loginway) { //短信
+          if (!this.isRightPhone){
+            return MessageBox.alert('必须指定正确的手机号')
+          }else if (/^\d{6}$/.test(code)) {
+            return MessageBox.alert('验证码必须是6位数字')
+          }
+          //发登录请求
+           result = await reqSmsLogin(phone,code)
+          //停止倒计时
+          this.computeTime = 0
+        } else{ // 密码
+          if (!name) {
+            return MessageBox.alert('必须指定手机号')
+          }else if (!pwd){
+            return MessageBox.alert('必须指定密码')
+          }else if (!captcha) {
+            return MessageBox.alert('必须指定验证码 ')
+          }
+          //发登录请求
+           result = await reqPwdLogin({name,pwd,captcha})
+          //如果失败，更新图片验证码
+          if (result.code!==0) {
+            this.updateCaptcha()
+          }
+        }
+
+        //根据结果做出不同响应
+        if (result.code===0) { //登录成功
+          // 将用户信息数据保存到state
+          this.$store.dispatch('saveUser',result.data)
+          //跳转到个人中心
+          this.$router.replace('/profile')
+        }else { //失败
+          MessageBox.alert('登录失败')
+        }
+
       }
     }
   }
